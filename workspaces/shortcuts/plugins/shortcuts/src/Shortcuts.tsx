@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-import type { MouseEvent } from 'react';
-
 import { useState } from 'react';
+import type { MouseEvent } from 'react';
 import useObservable from 'react-use/esm/useObservable';
-import PlayListAddIcon from '@material-ui/icons/PlaylistAdd';
+import { RiPlayListAddLine } from '@remixicon/react';
 import { ShortcutItem } from './ShortcutItem';
 import { AddShortcut } from './AddShortcut';
 import { shortcutsApiRef } from './api';
@@ -29,6 +28,7 @@ import {
   SidebarScrollWrapper,
 } from '@backstage/core-components';
 import { IconComponent, useApi } from '@backstage/core-plugin-api';
+import { ButtonIcon } from '@backstage/ui';
 
 /**
  * ShortcutsProps
@@ -43,27 +43,32 @@ export interface ShortcutsProps {
 export const Shortcuts = (props: ShortcutsProps) => {
   const shortcutApi = useApi(shortcutsApiRef);
   const shortcuts = useObservable(shortcutApi.shortcut$(), shortcutApi.get());
-  const [anchorEl, setAnchorEl] = useState<Element | undefined>();
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const loading = Boolean(!shortcuts);
-
-  const handleClick = (event: MouseEvent<Element>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(undefined);
-  };
 
   return (
     <SidebarScrollWrapper>
       <SidebarItem
-        icon={props.icon ?? PlayListAddIcon}
+        icon={
+          props.icon ??
+          (() => (
+            <ButtonIcon
+              aria-label="Add Shortcuts"
+              icon={<RiPlayListAddLine />}
+              onPress={() => setIsAddDialogOpen(true)}
+              variant="secondary"
+            />
+          ))
+        }
         text="Add Shortcuts"
-        onClick={handleClick}
+        onClick={(e: MouseEvent<Element>) => {
+          e.preventDefault();
+          setIsAddDialogOpen(true);
+        }}
       />
       <AddShortcut
-        onClose={handleClose}
-        anchorEl={anchorEl}
+        isOpen={isAddDialogOpen}
+        onOpenChange={setIsAddDialogOpen}
         api={shortcutApi}
         allowExternalLinks={props.allowExternalLinks}
       />

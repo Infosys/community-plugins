@@ -22,6 +22,16 @@ export { shortcutsPlugin } from '@backstage-community/plugin-shortcuts';
 
 If you don't have a `plugins.ts` file see: [troubleshooting](#troubleshooting)
 
+### Include Backstage UI styles:
+
+Ensure your app includes the Backstage UI base stylesheet. Add this import to your app's main entry point (e.g., `packages/app/src/App.tsx` or `packages/app/src/index.tsx`):
+
+```ts
+import '@backstage/ui/css/styles.css';
+```
+
+This import should be added once at the app level, not in individual plugins.
+
 ### Add the `<Shortcuts />` component within your `<Sidebar>`:
 
 Edit file `packages/app/src/components/Root/Root.tsx`

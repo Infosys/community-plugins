@@ -14,33 +14,15 @@
  * limitations under the License.
  */
 
-import type { MouseEvent } from 'react';
-
 import { useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import IconButton from '@material-ui/core/IconButton';
-import Tooltip from '@material-ui/core/Tooltip';
-import EditIcon from '@material-ui/icons/Edit';
+import { ButtonIcon, Tooltip, TooltipTrigger } from '@backstage/ui';
+import { RiEdit2Line } from '@remixicon/react';
 import { ShortcutIcon } from './ShortcutIcon';
 import { EditShortcut } from './EditShortcut';
 import { ShortcutApi } from './api';
 import { Shortcut } from './types';
 import { SidebarItem } from '@backstage/core-components';
-
-const useStyles = makeStyles(theme => ({
-  root: {
-    '&:hover #edit': {
-      visibility: 'visible',
-    },
-  },
-  button: {
-    visibility: 'hidden',
-  },
-  icon: {
-    color: theme.palette.common.white,
-    fontSize: 16,
-  },
-}));
+import styles from './ShortcutItem.module.css';
 
 const getIconText = (title: string) =>
   title.split(' ').length === 1
@@ -64,43 +46,34 @@ type Props = {
 };
 
 export const ShortcutItem = ({ shortcut, api, allowExternalLinks }: Props) => {
-  const classes = useStyles();
-  const [anchorEl, setAnchorEl] = useState<Element | undefined>();
-
-  const handleClick = (event: MouseEvent<Element>) => {
-    event.preventDefault();
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(undefined);
-  };
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const text = getIconText(shortcut.title);
   const color = api.getColor(shortcut.url);
 
   return (
     <>
-      <Tooltip title={shortcut.title} enterDelay={500}>
+      <TooltipTrigger>
         <SidebarItem
-          className={classes.root}
+          className={styles.root}
           to={shortcut.url}
           text={shortcut.title}
           icon={() => <ShortcutIcon text={text} color={color} />}
         >
-          <IconButton
+          <ButtonIcon
             id="edit"
             data-testid="edit"
-            onClick={handleClick}
-            className={classes.button}
-          >
-            <EditIcon className={classes.icon} />
-          </IconButton>
+            onPress={() => setIsEditDialogOpen(true)}
+            icon={<RiEdit2Line />}
+            className={styles.button}
+            variant="secondary"
+          />
         </SidebarItem>
-      </Tooltip>
+        <Tooltip>{shortcut.title}</Tooltip>
+      </TooltipTrigger>
       <EditShortcut
-        onClose={handleClose}
-        anchorEl={anchorEl}
+        isOpen={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
         api={api}
         shortcut={shortcut}
         allowExternalLinks={allowExternalLinks}
